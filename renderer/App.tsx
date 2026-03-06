@@ -539,28 +539,53 @@ export default function App() {
           flexShrink: 0,
         }}
       >
-        <span style={{ fontSize: 9, color: "#555", textTransform: "uppercase", letterSpacing: 1, fontWeight: 700 }}>OBS Dock</span>
-        <span style={{ fontSize: 9, color: obsDockEnabled ? "#3ddc8488" : "#333", flex: 1 }}>
+        <span
+          style={{
+            fontSize: 9,
+            color: "#555",
+            textTransform: "uppercase",
+            letterSpacing: 1,
+            fontWeight: 700,
+          }}
+        >
+          OBS Dock
+        </span>
+        <span
+          style={{
+            fontSize: 9,
+            color: obsDockEnabled ? "#3ddc8488" : "#333",
+            flex: 1,
+          }}
+        >
           {obsDockEnabled ? "localhost:9876" : "off"}
         </span>
         {/* Toggle switch */}
         <div
           onClick={() => setObsDockEnabled((v) => !v)}
           style={{
-            width: 32, height: 17, borderRadius: 9,
+            width: 32,
+            height: 17,
+            borderRadius: 9,
             background: obsDockEnabled ? "#c8a96e" : "#333344",
-            position: "relative", cursor: "pointer",
-            transition: "background .2s", flexShrink: 0,
+            position: "relative",
+            cursor: "pointer",
+            transition: "background .2s",
+            flexShrink: 0,
           }}
         >
-          <div style={{
-            position: "absolute",
-            top: 2, left: obsDockEnabled ? 17 : 2,
-            width: 13, height: 13, borderRadius: "50%",
-            background: "#fff",
-            transition: "left .2s",
-            boxShadow: "0 1px 3px #0006",
-          }} />
+          <div
+            style={{
+              position: "absolute",
+              top: 2,
+              left: obsDockEnabled ? 17 : 2,
+              width: 13,
+              height: 13,
+              borderRadius: "50%",
+              background: "#fff",
+              transition: "left .2s",
+              boxShadow: "0 1px 3px #0006",
+            }}
+          />
         </div>
       </div>
     </div>

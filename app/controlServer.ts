@@ -301,7 +301,11 @@ let _server: http.Server | null = null;
 
 export function stopControlServer(): void {
   if (_server) {
-    sseClients.forEach((res) => { try { res.end(); } catch {} });
+    sseClients.forEach((res) => {
+      try {
+        res.end();
+      } catch {}
+    });
     sseClients.clear();
     _server.close();
     _server = null;
