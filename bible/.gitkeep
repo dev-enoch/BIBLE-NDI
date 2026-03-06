@@ -1,0 +1,2 @@
+# database.sqlite is generated at runtime by better-sqlite3
+# This file ensures the bible/ directory is tracked by git

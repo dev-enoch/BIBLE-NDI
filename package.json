@@ -1,0 +1,103 @@
+{
+  "name": "bible-ndi",
+  "version": "1.0.0",
+  "description": "Broadcast Bible verses over NDI for live production",
+  "main": "dist/app/main.js",
+  "scripts": {
+    "build:main": "tsc",
+    "build:renderer": "esbuild renderer/main.tsx --bundle --outfile=dist/renderer/main.js --platform=browser",
+    "build:output": "esbuild renderer/output.tsx --bundle --outfile=dist/renderer/output.js --platform=browser",
+    "build:html": "node -e \"const{mkdirSync,copyFileSync}=require('fs');mkdirSync('dist/renderer',{recursive:true});copyFileSync('renderer/index.html','dist/renderer/index.html');copyFileSync('renderer/output.html','dist/renderer/output.html')\"",
+    "build": "yarn build:main && yarn build:renderer && yarn build:output && yarn build:html",
+    "rebuild-native": "electron-rebuild -f -w better-sqlite3",
+    "rebuild-ndi": "cross-env NDI_SDK_DIR=C:/ndi_sdk node-gyp rebuild --directory native/ndi-sender && electron-rebuild -f --only ndi_sender --module-dir native/ndi-sender",
+    "start": "yarn build && electron .",
+    "dist:win": "yarn build && electron-builder --win --x64",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "build": {
+    "appId": "com.biblendiapp.app",
+    "productName": "BibleNDI",
+    "copyright": "Copyright © 2026",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "dist/**",
+      "native/ndi-sender/build/Release/*.node",
+      "native/ndi-sender/build/Release/*.dll",
+      "bible/**",
+      "!node_modules/**",
+      "node_modules/better-sqlite3/**",
+      "node_modules/bindings/**",
+      "node_modules/file-uri-to-path/**",
+      "node_modules/node-addon-api/**"
+    ],
+    "asarUnpack": [
+      "native/**",
+      "bible/**",
+      "node_modules/better-sqlite3/**",
+      "node_modules/bindings/**",
+      "node_modules/file-uri-to-path/**"
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "zip",
+          "arch": [
+            "x64"
+          ]
+        }
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "BibleNDI"
+    }
+  },
+  "keywords": [
+    "ndi",
+    "bible",
+    "electron",
+    "live-production",
+    "obs"
+  ],
+  "author": "",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-username/bible-ndi"
+  },
+  "type": "commonjs",
+  "devDependencies": {
+    "@electron/rebuild": "^4.0.3",
+    "@types/better-sqlite3": "^7.6.13",
+    "@types/node": "^25.3.3",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "concurrently": "^9.2.1",
+    "cross-env": "^10.1.0",
+    "electron": "^40.6.1",
+    "electron-builder": "^26.8.1",
+    "esbuild": "^0.27.3",
+    "node-gyp": "^12.2.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.3",
+    "wait-on": "^9.0.4"
+  },
+  "dependencies": {
+    "better-sqlite3": "^12.6.2",
+    "node-addon-api": "^8.6.0",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4"
+  }
+}
