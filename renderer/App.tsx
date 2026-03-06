@@ -38,6 +38,7 @@ interface Session {
   ptChannel: string;
   ltChannel: string;
   portraitRatio: PortraitRatio;
+  obsDockEnabled: boolean;
 }
 
 function loadSession(): Partial<Session> {
@@ -181,6 +182,10 @@ export default function App() {
   );
   const [ptW, ptH] = PORTRAIT_DIMS[portraitRatio];
 
+  const [obsDockEnabled, setObsDockEnabled] = useState(
+    saved.obsDockEnabled ?? true,
+  );
+
   // Bible version
   const [versions, setVersions] = useState<BibleVersion[]>([]);
   const [currentVersion, setCurrentVersion] = useState(
@@ -266,6 +271,7 @@ export default function App() {
           ptChannel: ptNdi.channelName,
           ltChannel: ltNdi.channelName,
           portraitRatio,
+          obsDockEnabled,
         };
         localStorage.setItem(SESSION_KEY, JSON.stringify(session));
       } catch {}
@@ -282,11 +288,15 @@ export default function App() {
     ptNdi.channelName,
     ltNdi.channelName,
     portraitRatio,
+    obsDockEnabled,
   ]);
 
-  // ─── OBS control panel: push state via IPC ───────────────────────────────
-  // Whenever navigation state changes, forward it to the HTTP control server
-  // (which broadcasts it to OBS docks via Server-Sent Events).
+  // ─── OBS dock toggle ──────────────────────────────────────────────────────
+  useEffect(() => {
+    window.bibleAPI.toggleObsDock(obsDockEnabled);
+  }, [obsDockEnabled]);
+
+  // OBS control panel: push state via IPC
   useEffect(() => {
     window.bibleAPI.pushState({
       book,
@@ -515,6 +525,43 @@ export default function App() {
             renderSlate(ptW, ptH, text, reference, ptSt, "80px", "60px")
           }
         />
+      </div>
+
+      {/* OBS Dock toggle */}
+      <div
+        style={{
+          marginTop: "auto",
+          paddingTop: 10,
+          borderTop: "1px solid #ffffff08",
+          display: "flex",
+          alignItems: "center",
+          gap: 8,
+          flexShrink: 0,
+        }}
+      >
+        <span style={{ fontSize: 9, color: "#555", textTransform: "uppercase", letterSpacing: 1, fontWeight: 700 }}>OBS Dock</span>
+        <span style={{ fontSize: 9, color: obsDockEnabled ? "#3ddc8488" : "#333", flex: 1 }}>
+          {obsDockEnabled ? "localhost:9876" : "off"}
+        </span>
+        {/* Toggle switch */}
+        <div
+          onClick={() => setObsDockEnabled((v) => !v)}
+          style={{
+            width: 32, height: 17, borderRadius: 9,
+            background: obsDockEnabled ? "#c8a96e" : "#333344",
+            position: "relative", cursor: "pointer",
+            transition: "background .2s", flexShrink: 0,
+          }}
+        >
+          <div style={{
+            position: "absolute",
+            top: 2, left: obsDockEnabled ? 17 : 2,
+            width: 13, height: 13, borderRadius: "50%",
+            background: "#fff",
+            transition: "left .2s",
+            boxShadow: "0 1px 3px #0006",
+          }} />
+        </div>
       </div>
     </div>
   );

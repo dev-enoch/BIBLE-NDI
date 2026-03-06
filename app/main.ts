@@ -18,6 +18,7 @@ import {
 import { isNdiAvailable, ndiShutdown } from "./ndi";
 import {
   startControlServer,
+  stopControlServer,
   broadcastState,
   setNavigateCallback,
 } from "./controlServer";
@@ -121,6 +122,13 @@ app.whenReady().then(() => {
   // When the renderer pushes a new navigation state, broadcast via SSE.
   ipcMain.on("state-push", (_e, state) => {
     broadcastState(state);
+  });
+
+  // Toggle the control server on/off from the renderer UI.
+  ipcMain.handle("obs-dock-toggle", (_e, enable: boolean) => {
+    if (enable) startControlServer(9876);
+    else stopControlServer();
+    return { ok: true };
   });
 });
 

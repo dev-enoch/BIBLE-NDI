@@ -142,207 +142,144 @@ function buildHTML(): string {
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>BibleNDI Control</title>
+<title>BibleNDI</title>
 <style>
   *{box-sizing:border-box;margin:0;padding:0}
   body{
-    background:#111118;color:#e8e4da;
+    background:#0f0f1a;color:#e8e4da;
     font-family:'Segoe UI',system-ui,sans-serif;
-    font-size:13px;user-select:none;
+    font-size:12px;user-select:none;
     display:flex;flex-direction:column;
+    padding:8px;gap:6px;
     height:100vh;overflow:hidden;
   }
-  #header{
-    background:#0d0d16;
-    border-bottom:1px solid #ffffff0d;
-    padding:10px 12px 8px;
-    flex-shrink:0;
-  }
   #ref{
-    font-size:17px;font-weight:700;
-    color:#c8a96e;letter-spacing:.5px;
-    margin-bottom:5px;
+    font-size:11px;font-weight:700;color:#c8a96e;
+    letter-spacing:.3px;white-space:nowrap;overflow:hidden;
+    text-overflow:ellipsis;flex-shrink:0;
   }
-  #text{
-    font-size:11px;color:#aaa;
-    line-height:1.5;
-    display:-webkit-box;-webkit-line-clamp:3;
-    -webkit-box-orient:vertical;overflow:hidden;
-  }
-  #navArea{
-    padding:10px 12px;
-    display:flex;flex-direction:column;gap:8px;
-    flex-shrink:0;
-  }
-  .navRow{
-    display:flex;gap:6px;align-items:center;
-  }
-  .navLabel{
-    font-size:9px;color:#555;text-transform:uppercase;
-    letter-spacing:1px;width:50px;flex-shrink:0;
-  }
-  .navBtn{
-    flex:1;padding:7px 4px;border:1px solid #ffffff14;
-    border-radius:4px;background:#1c1c2e;color:#e8e4da;
-    font-size:12px;cursor:pointer;transition:background .12s,color .12s;
-  }
-  .navBtn:hover{background:#c8a96e22;border-color:#c8a96e55;color:#c8a96e}
-  .navBtn:active{background:#c8a96e44}
-  .navBig{padding:10px 4px;font-size:14px;font-weight:700}
-  #selArea{
-    padding:0 12px 12px;
-    display:flex;flex-direction:column;gap:7px;
-    overflow-y:auto;flex:1;
-  }
-  .selRow{display:flex;flex-direction:column;gap:3px}
-  .selLbl{font-size:9px;color:#555;text-transform:uppercase;letter-spacing:1px}
+  .row{display:flex;gap:5px;flex-shrink:0}
   select,input[type=number]{
-    width:100%;padding:5px 7px;
-    background:#1c1c2e;color:#e8e4da;
+    flex:1;width:100%;padding:5px 6px;
+    background:#1a1a2e;color:#e8e4da;
     border:1px solid #ffffff14;border-radius:4px;
-    font-size:12px;cursor:pointer;
+    font-size:12px;cursor:pointer;min-width:0;
   }
-  select:focus,input:focus{outline:1px solid #c8a96e55;border-color:#c8a96e55}
-  #goBtn{
-    width:100%;padding:8px;
-    background:#c8a96e22;color:#c8a96e;
-    border:1px solid #c8a96e55;border-radius:4px;
-    font-size:12px;font-weight:700;cursor:pointer;
-    letter-spacing:.5px;
+  select:focus,input:focus{outline:none;border-color:#c8a96e66}
+  .lbl{
+    font-size:9px;color:#444;text-transform:uppercase;
+    letter-spacing:.8px;margin-bottom:2px;
   }
-  #goBtn:hover{background:#c8a96e44}
-  #status{
-    padding:6px 12px;
-    font-size:9px;color:#444;text-align:center;
-    border-top:1px solid #ffffff06;flex-shrink:0;
+  .col{display:flex;flex-direction:column;flex:1;min-width:0}
+  .nav{
+    display:grid;grid-template-columns:1fr 2fr 2fr 1fr;
+    gap:5px;flex-shrink:0;
   }
-  #status.ok{color:#3a3}
-  #status.err{color:#a33}
+  .nb{
+    padding:8px 2px;border:1px solid #ffffff14;
+    border-radius:4px;background:#1a1a2e;color:#e8e4da;
+    font-size:13px;cursor:pointer;text-align:center;
+    transition:background .1s;
+  }
+  .nb:hover{background:#c8a96e22;border-color:#c8a96e55;color:#c8a96e}
+  .nb:active{background:#c8a96e44}
+  .nb.sm{font-size:10px;color:#666;padding:8px 0}
+  .nb.sm:hover{color:#c8a96e}
+  #dot{
+    display:inline-block;width:6px;height:6px;
+    border-radius:50%;background:#444;margin-right:5px;
+    vertical-align:middle;transition:background .3s;
+  }
+  #dot.ok{background:#3ddc84;box-shadow:0 0 5px #3ddc8488}
+  #dot.err{background:#c83}
 </style>
 </head>
 <body>
-<div id="header">
-  <div id="ref">Loading…</div>
-  <div id="text"></div>
+<div id="ref"><span id="dot"></span>Loading…</div>
+
+<div class="col">
+  <div class="lbl">Book</div>
+  <select id="bookSel" onchange="onBookChange()"></select>
 </div>
 
-<div id="navArea">
-  <div class="navRow">
-    <span class="navLabel">Verse</span>
-    <button class="navBtn navBig" onclick="nav('prevVerse')">◀</button>
-    <button class="navBtn navBig" onclick="nav('nextVerse')">▶</button>
+<div class="row">
+  <div class="col">
+    <div class="lbl">Chapter</div>
+    <input id="chapterIn" type="number" min="1" value="1" onchange="onChapterChange()"/>
   </div>
-  <div class="navRow">
-    <span class="navLabel">Chapter</span>
-    <button class="navBtn" onclick="nav('prevChapter')">◀ Prev</button>
-    <button class="navBtn" onclick="nav('nextChapter')">Next ▶</button>
+  <div class="col">
+    <div class="lbl">Verse</div>
+    <input id="verseIn" type="number" min="1" value="1" onchange="onVerseChange()"/>
   </div>
 </div>
 
-<div id="selArea">
-  <div class="selRow">
-    <label class="selLbl">Book</label>
-    <select id="bookSel"></select>
-  </div>
-  <div class="selRow">
-    <label class="selLbl">Chapter</label>
-    <input id="chapterIn" type="number" min="1" value="1"/>
-  </div>
-  <div class="selRow">
-    <label class="selLbl">Verse</label>
-    <input id="verseIn" type="number" min="1" value="1"/>
-  </div>
-  <button id="goBtn" onclick="jumpTo()">GO</button>
+<div class="nav">
+  <button class="nb sm" onclick="nav('prevChapter')" title="Prev Chapter">Ch&#9664;</button>
+  <button class="nb" onclick="nav('prevVerse')" title="Prev Verse">&#9664;</button>
+  <button class="nb" onclick="nav('nextVerse')" title="Next Verse">&#9654;</button>
+  <button class="nb sm" onclick="nav('nextChapter')" title="Next Chapter">&#9654;Ch</button>
 </div>
-
-<div id="status" id="status">Connecting…</div>
 
 <script>
 const BOOKS = ${booksJson};
 let _state = null;
 let _busy = false;
 
-// Populate book dropdown
 const bookSel = document.getElementById('bookSel');
+const chapterIn = document.getElementById('chapterIn');
+const verseIn = document.getElementById('verseIn');
+
 BOOKS.forEach((name, i) => {
   const opt = document.createElement('option');
-  opt.value = i + 1;
-  opt.textContent = name;
+  opt.value = i + 1; opt.textContent = name;
   bookSel.appendChild(opt);
 });
 
+function setDot(cls) {
+  const d = document.getElementById('dot');
+  if (d) d.className = cls;
+}
+
 function applyState(s) {
   _state = s;
-  document.getElementById('ref').textContent = s.reference;
-  document.getElementById('text').textContent = s.text;
+  const d = document.getElementById('dot');
+  const dotHtml = '<span id="dot" class="' + (d ? d.className : 'ok') + '"></span>';
+  document.getElementById('ref').innerHTML = dotHtml + s.reference;
   bookSel.value = s.book;
-  document.getElementById('chapterIn').max = s.chapterCount;
-  document.getElementById('chapterIn').value = s.chapter;
-  document.getElementById('verseIn').max = s.verseCount;
-  document.getElementById('verseIn').value = s.verse;
+  chapterIn.max = s.chapterCount; chapterIn.value = s.chapter;
+  verseIn.max = s.verseCount;     verseIn.value = s.verse;
 }
 
-// SSE
 function connect() {
   const es = new EventSource('/events');
-  es.onopen = () => setStatus('Connected', 'ok');
+  es.onopen = () => setDot('ok');
   es.onmessage = e => { try { applyState(JSON.parse(e.data)); } catch{} };
-  es.onerror = () => {
-    setStatus('Reconnecting…', 'err');
-    es.close();
-    setTimeout(connect, 2000);
-  };
+  es.onerror = () => { setDot('err'); es.close(); setTimeout(connect, 2000); };
 }
 connect();
-
-// Fetch initial state
 fetch('/state').then(r=>r.json()).then(applyState).catch(()=>{});
 
-function setStatus(msg, cls) {
-  const el = document.getElementById('status');
-  el.textContent = msg;
-  el.className = cls || '';
-  if (cls === 'ok') setTimeout(() => { el.textContent = 'BibleNDI'; el.className = ''; }, 1500);
-}
-
-function nav(action) {
+function post(body) {
   if (_busy) return;
   _busy = true;
   fetch('/navigate', {
-    method: 'POST',
-    headers: {'Content-Type':'application/json'},
-    body: JSON.stringify({action})
-  })
-  .then(r => r.json())
-  .then(j => { if (!j.ok) setStatus('Error', 'err'); })
-  .catch(() => setStatus('Error', 'err'))
-  .finally(() => { _busy = false; });
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify(body)
+  }).finally(() => { _busy = false; });
 }
 
-function jumpTo() {
-  const book = parseInt(bookSel.value);
-  const chapter = parseInt(document.getElementById('chapterIn').value) || 1;
-  const verse = parseInt(document.getElementById('verseIn').value) || 1;
-  if (_busy) return;
-  _busy = true;
-  fetch('/navigate', {
-    method: 'POST',
-    headers: {'Content-Type':'application/json'},
-    body: JSON.stringify({book, chapter, verse})
-  })
-  .then(r => r.json())
-  .then(j => { if (!j.ok) setStatus('Error', 'err'); })
-  .catch(() => setStatus('Error', 'err'))
-  .finally(() => { _busy = false; });
-}
+function nav(action) { post({action}); }
+function onBookChange() { post({book:parseInt(bookSel.value),chapter:1,verse:1}); }
+function onChapterChange() { if(_state) post({book:_state.book,chapter:parseInt(chapterIn.value)||1,verse:1}); }
+function onVerseChange()   { if(_state) post({book:_state.book,chapter:_state.chapter,verse:parseInt(verseIn.value)||1}); }
 
-// Keyboard shortcuts
 document.addEventListener('keydown', e => {
-  if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') return;
-  if (e.key === 'ArrowRight') nav('nextVerse');
-  else if (e.key === 'ArrowLeft') nav('prevVerse');
-  else if (e.key === 'ArrowUp') nav('prevChapter');
-  else if (e.key === 'ArrowDown') nav('nextChapter');
+  if (e.target.tagName==='INPUT'||e.target.tagName==='SELECT') return;
+  if (e.key==='ArrowRight') nav('nextVerse');
+  else if (e.key==='ArrowLeft') nav('prevVerse');
+  else if (e.key==='ArrowUp') nav('prevChapter');
+  else if (e.key==='ArrowDown') nav('nextChapter');
 });
 </script>
 </body>
@@ -360,7 +297,20 @@ function json(res: ServerResponse, code: number, data: unknown): void {
   res.end(body);
 }
 
+let _server: http.Server | null = null;
+
+export function stopControlServer(): void {
+  if (_server) {
+    sseClients.forEach((res) => { try { res.end(); } catch {} });
+    sseClients.clear();
+    _server.close();
+    _server = null;
+    console.log("[Control] Panel stopped");
+  }
+}
+
 export function startControlServer(port = 9876): http.Server {
+  if (_server) return _server; // already running
   const server = http.createServer(async (req, res) => {
     const url = new URL(req.url ?? "/", `http://localhost:${port}`);
     const pathname = url.pathname;
@@ -458,5 +408,6 @@ export function startControlServer(port = 9876): http.Server {
     console.log(`[Control] Panel running at http://localhost:${port}`);
   });
 
+  _server = server;
   return server;
 }

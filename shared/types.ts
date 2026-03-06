@@ -31,6 +31,8 @@ export interface BibleAPI {
   pushState: (state: unknown) => void;
   /** Register a callback for navigation commands from the OBS dock. */
   onNavigateTo: (cb: (cmd: NavigateCmd) => void) => void;
+  /** Enable or disable the OBS dock HTTP server. */
+  toggleObsDock: (enable: boolean) => Promise<{ ok: boolean }>;
 }
 
 export interface NdiAPI {

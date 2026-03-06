@@ -40,6 +40,10 @@ contextBridge.exposeInMainWorld("bibleAPI", {
   ): void => {
     ipcRenderer.on("navigate-to", (_e, cmd) => cb(cmd));
   },
+
+  /** Enable or disable the OBS dock HTTP server. */
+  toggleObsDock: (enable: boolean): Promise<{ ok: boolean }> =>
+    ipcRenderer.invoke("obs-dock-toggle", enable),
 });
 
 // ─── NDI API ──────────────────────────────────────────────────────────────────
