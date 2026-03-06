@@ -284,6 +284,68 @@ export default function App() {
     portraitRatio,
   ]);
 
+  // ─── OBS control panel: push state via IPC ───────────────────────────────
+  // Whenever navigation state changes, forward it to the HTTP control server
+  // (which broadcasts it to OBS docks via Server-Sent Events).
+  useEffect(() => {
+    window.bibleAPI.pushState({
+      book,
+      chapter,
+      verse,
+      chapterCount,
+      verseCount,
+      reference,
+      text,
+    });
+  }, [book, chapter, verse, chapterCount, verseCount, reference, text]);
+
+  // ─── OBS control panel: receive navigate commands ─────────────────────────
+  // Register the listener once; use refs so stale-closure values stay current.
+  const verseCountRef = useRef(verseCount);
+  const chapterCountRef = useRef(chapterCount);
+  useEffect(() => {
+    verseCountRef.current = verseCount;
+  }, [verseCount]);
+  useEffect(() => {
+    chapterCountRef.current = chapterCount;
+  }, [chapterCount]);
+
+  useEffect(() => {
+    window.bibleAPI.onNavigateTo((cmd) => {
+      if ("action" in cmd) {
+        const vc = verseCountRef.current;
+        const cc = chapterCountRef.current;
+        switch (cmd.action) {
+          case "nextVerse":
+            setVerse_((v) =>
+              v < vc ? v + 1 : (setChapter_((c) => Math.min(c + 1, cc)), 1),
+            );
+            break;
+          case "prevVerse":
+            setVerse_((v) =>
+              v > 1 ? v - 1 : (setChapter_((c) => Math.max(c - 1, 1)), vc),
+            );
+            break;
+          case "nextChapter":
+            setChapter_((c) => Math.min(c + 1, cc));
+            setVerse_(1);
+            break;
+          case "prevChapter":
+            setChapter_((c) => Math.max(c - 1, 1));
+            setVerse_(1);
+            break;
+        }
+      } else {
+        // Jump to an explicit book/chapter/verse
+        setBook_(cmd.book);
+        setChapter_(cmd.chapter);
+        setVerse_(cmd.verse);
+      }
+    });
+    // Listener registered once on mount — no cleanup needed (ipcRenderer.on is fine)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   // ─── NDI: availability check ─────────────────────────────────────────────
   const [ndiAvailable, setNdiAvailable] = useState(false);
   useEffect(() => {

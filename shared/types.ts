@@ -13,6 +13,10 @@ export interface BibleVersion {
   name: string;
 }
 
+export type NavigateCmd =
+  | { action: "nextVerse" | "prevVerse" | "nextChapter" | "prevChapter" }
+  | { book: number; chapter: number; verse: number };
+
 export interface BibleAPI {
   getChapterCount: (book: number) => Promise<number>;
   getVerseCount: (book: number, chapter: number) => Promise<number>;
@@ -23,6 +27,10 @@ export interface BibleAPI {
   ) => Promise<Verse | null>;
   listVersions: () => Promise<BibleVersion[]>;
   setVersion: (id: string) => Promise<{ ok: boolean; error?: string }>;
+  /** Push navigation state to the HTTP control panel (OBS dock). */
+  pushState: (state: unknown) => void;
+  /** Register a callback for navigation commands from the OBS dock. */
+  onNavigateTo: (cb: (cmd: NavigateCmd) => void) => void;
 }
 
 export interface NdiAPI {

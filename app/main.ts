@@ -16,6 +16,11 @@ import {
   type OutputPayload,
 } from "./outputWindow";
 import { isNdiAvailable, ndiShutdown } from "./ndi";
+import {
+  startControlServer,
+  broadcastState,
+  setNavigateCallback,
+} from "./controlServer";
 
 let mainWindow: BrowserWindow;
 
@@ -104,6 +109,19 @@ ipcMain.handle("ndi-available", () => isNdiAvailable());
 app.whenReady().then(() => {
   createWindow();
   initOutputWindows();
+
+  // ─── OBS control panel ────────────────────────────────────────────────────
+  startControlServer(9876);
+
+  // When the dock posts a navigate command, forward it to the renderer.
+  setNavigateCallback((cmd) => {
+    mainWindow.webContents.send("navigate-to", cmd);
+  });
+
+  // When the renderer pushes a new navigation state, broadcast via SSE.
+  ipcMain.on("state-push", (_e, state) => {
+    broadcastState(state);
+  });
 });
 
 app.on("before-quit", () => {

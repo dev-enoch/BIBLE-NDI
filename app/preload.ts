@@ -26,6 +26,20 @@ contextBridge.exposeInMainWorld("bibleAPI", {
 
   setVersion: (id: string): Promise<{ ok: boolean; error?: string }> =>
     ipcRenderer.invoke("set-version", id),
+
+  /** Push current navigation state to the main process (→ OBS control panel). */
+  pushState: (state: unknown): void => ipcRenderer.send("state-push", state),
+
+  /** Register a callback that fires when the OBS control panel requests navigation. */
+  onNavigateTo: (
+    cb: (
+      nav:
+        | { action: "nextVerse" | "prevVerse" | "nextChapter" | "prevChapter" }
+        | { book: number; chapter: number; verse: number },
+    ) => void,
+  ): void => {
+    ipcRenderer.on("navigate-to", (_e, cmd) => cb(cmd));
+  },
 });
 
 // ─── NDI API ──────────────────────────────────────────────────────────────────
