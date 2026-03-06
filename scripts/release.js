@@ -56,4 +56,6 @@ run("git push origin main");
 run(`git push origin v${newVersion}`);
 
 console.log(`\n✓ Released v${newVersion} — tag pushed to GitHub`);
-console.log(`  Upload release/BibleNDI\\ Setup\\ ${newVersion}.exe to the GitHub release page.`);
+console.log(
+  `  Upload release/BibleNDI\\ Setup\\ ${newVersion}.exe to the GitHub release page.`,
+);
