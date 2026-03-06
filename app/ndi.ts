@@ -7,12 +7,14 @@
  *
  * Build the addon:
  *   1. Install the NDI 6 SDK from https://ndi.tv/sdk/
- *      (headers + .lib needed at compile time; Runtime DLL found automatically)
- *   2. yarn rebuild-ndi
+ *      (headers + .lib needed at compile time)
+ *   2. yarn rebuild-ndi  (also copies the runtime DLL into build/Release)
  *
  * Runtime DLL discovery order (Windows):
- *   NDI_RUNTIME_DIR env var → NDI 6 Runtime → NDI 6 SDK Bin → NDI 5 SDK Bin
- *   → dynamic scan of C:\Program Files\NDI\*
+ *   1. Bundled DLL (native/ndi-sender/build/Release) — copied by rebuild-ndi
+ *   2. NDI_RUNTIME_DIR env var (user override)
+ *   3. NDI 6 Runtime → NDI 6 SDK Bin → NDI 5 SDK Bin
+ *   4. Dynamic scan of C:\Program Files\NDI\*
  */
 
 import fs from "fs";
@@ -87,6 +89,8 @@ function findNdiRuntimeDirs(): string[] {
   if (process.platform !== "win32") return [];
 
   const candidates: Array<string | undefined> = [
+    // Bundled DLL — copied next to ndi_sender.node by yarn rebuild-ndi / yarn copy-ndi-dll
+    path.join(projectRoot(), "native", "ndi-sender", "build", "Release"),
     process.env.NDI_RUNTIME_DIR, // user override
     // NDI 6 Runtime (DLL-only install)
     "C:\\Program Files\\NDI\\NDI 6 Runtime\\v6",
@@ -99,8 +103,6 @@ function findNdiRuntimeDirs(): string[] {
     "C:\\Program Files\\NDI\\NDI 5 Runtime",
     // Dynamic scan catches anything not listed above
     ...scanNdiDirs(),
-    // Bundled DLL (copied next to ndi_sender.node during yarn rebuild-ndi)
-    path.join(projectRoot(), "native", "ndi-sender", "build", "Release"),
   ];
 
   return candidates.filter(

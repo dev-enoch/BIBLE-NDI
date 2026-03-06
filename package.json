@@ -9,10 +9,12 @@
     "build:output": "esbuild renderer/output.tsx --bundle --outfile=dist/renderer/output.js --platform=browser",
     "build:html": "node -e \"const{mkdirSync,copyFileSync}=require('fs');mkdirSync('dist/renderer',{recursive:true});copyFileSync('renderer/index.html','dist/renderer/index.html');copyFileSync('renderer/output.html','dist/renderer/output.html')\"",
     "build": "yarn build:main && yarn build:renderer && yarn build:output && yarn build:html",
+    "copy-ndi-dll": "node -e \"require('fs').copyFileSync('C:/ndi_sdk/Bin/x64/Processing.NDI.Lib.x64.dll','native/ndi-sender/build/Release/Processing.NDI.Lib.x64.dll')\"",
     "rebuild-native": "electron-rebuild -f -w better-sqlite3",
-    "rebuild-ndi": "cross-env NDI_SDK_DIR=C:/ndi_sdk node-gyp rebuild --directory native/ndi-sender && electron-rebuild -f --only ndi_sender --module-dir native/ndi-sender",
+    "rebuild-ndi": "cross-env NDI_SDK_DIR=C:/ndi_sdk node-gyp rebuild --directory native/ndi-sender && electron-rebuild -f --only ndi_sender --module-dir native/ndi-sender && yarn copy-ndi-dll",
     "start": "yarn build && electron .",
-    "dist:win": "yarn build && electron-builder --win --x64",
+    "dist:win": "yarn copy-ndi-dll && yarn build && electron-builder --win --x64",
+    "release": "node scripts/release.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "build": {

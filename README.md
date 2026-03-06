@@ -32,12 +32,12 @@ BibleNDI is an open-source desktop app built with Electron that lets you display
 ### Runtime (end users)
 
 - Windows 10/11 x64
-- [NDI 6 Runtime](https://ndi.video/download-ndi-sdk/) — free, install the **Runtime** (not the full SDK)
+- **NDI runtime is bundled** — no separate NDI install required
 
 ### Development
 
 - Node.js 18+ and Yarn
-- [NDI 6 SDK](https://ndi.video/download-ndi-sdk/) — required to compile the native addon (install to default path)
+- [NDI 6 SDK](https://ndi.video/download-ndi-sdk/) — required to compile the native addon (install to default path, then run `yarn rebuild-ndi` which also copies the runtime DLL into the build)
 - Python 3.x (for node-gyp)
 - Visual Studio Build Tools 2019+ with "Desktop development with C++"
 

@@ -27,3 +27,6 @@ desktop.ini
 .idea/
 *.suo
 *.user
+
+# Bundled NDI runtime DLL (copied at build time by yarn copy-ndi-dll)
+native/ndi-sender/build/Release/*.dll
